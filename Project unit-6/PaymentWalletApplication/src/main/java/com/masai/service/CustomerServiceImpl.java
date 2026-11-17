@@ -28,6 +28,15 @@ public class CustomerServiceImpl implements CustomerService{
 	   if(opt.isPresent()){
 		  System.out.println("User Already Exist"); 
 	   }
+
+	   if (customer.getWallet() == null) {
+		   Wallet wallet = new Wallet();
+		   wallet.setBalance(0.0);
+		   wallet.setCustomer(customer);
+		   customer.setWallet(wallet);
+	   } else {
+		   customer.getWallet().setCustomer(customer);
+	   }
 	   
 	    customerDao.save(customer);
 	    CustomerDTO dto = new CustomerDTO(customer.getMobileNumber(),customer.getPassword());
@@ -37,18 +46,24 @@ public class CustomerServiceImpl implements CustomerService{
 
 	@Override
 	public Customer updateCustomer(Customer customer, String key) {
-		
-    UserSession customer2 =	currentuser.getcurrentUserSessionDetails(key);
-		
-  if(customer2==null) {
-	  System.out.println("no user found");
-  }
+		UserSession customer2 = currentuser.getcurrentUserSessionDetails(key);
+		if (customer2 == null) {
+			System.out.println("no user found");
+		} else if (customer2.getCustomerId() != null) {
+			Optional<Customer> opt = customerDao.findById(customer2.getCustomerId());
+			if (opt.isPresent()) {
+				Customer existingCustomer = opt.get();
+				customer.setCustomerId(existingCustomer.getCustomerId());
+				if (customer.getWallet() == null) {
+					customer.setWallet(existingCustomer.getWallet());
+				} else if (existingCustomer.getWallet() != null) {
+					customer.getWallet().setBalance(existingCustomer.getWallet().getBalance());
+					customer.getWallet().setCustomer(customer);
+				}
+			}
+		}
 
- 
-  
-  return customerDao.save(customer);
- 
-
+		return customerDao.save(customer);
 	}
 
 	

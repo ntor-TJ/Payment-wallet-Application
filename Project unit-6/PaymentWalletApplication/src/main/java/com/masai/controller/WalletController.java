@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.masai.entities.BankAccount;
 import com.masai.entities.Customer;
+import com.masai.exception.InvalidDetailsException;
 import com.masai.service.WalletService;
 
 
@@ -33,6 +34,9 @@ public class WalletController {
 	@PostMapping("addmoney/{amount}/{Accno}")
 	public ResponseEntity<String> addMoneyController(@PathVariable double amount, @RequestParam(required = false) String key,@PathVariable Integer Accno) {
 		
+		if (amount <= 0) {
+			throw new InvalidDetailsException("Amount must be greater than zero");
+		}
 		String message =  walletService.addMoney(amount, key, Accno);
 		
 		return new ResponseEntity<String>(message,HttpStatus.ACCEPTED);
@@ -42,6 +46,9 @@ public class WalletController {
 	@PostMapping("depositmoney/{amount}/{Accno}")
 	public ResponseEntity<String> depositMoneyController(@PathVariable double amount, @RequestParam(required = false) String key,@PathVariable Integer Accno) {
 		
+		if (amount <= 0) {
+			throw new InvalidDetailsException("Amount must be greater than zero");
+		}
 		String message =  walletService.depositAmount(amount, key, Accno);
 		
 		return new ResponseEntity<String>(message,HttpStatus.ACCEPTED);
@@ -51,6 +58,9 @@ public class WalletController {
 	@PostMapping("fundtransfer/{amount}/{sourceno}/{targetno}")
 	public ResponseEntity<String> addMoneyController(@PathVariable double amount ,@PathVariable String sourceno,@PathVariable String targetno,@RequestParam(required = false) String key) {
 		
+		if (amount <= 0) {
+			throw new InvalidDetailsException("Amount must be greater than zero");
+		}
 		String message =  walletService.fundTransfer(sourceno, targetno, amount, key);
 		
 		return new ResponseEntity<String>(message,HttpStatus.ACCEPTED);

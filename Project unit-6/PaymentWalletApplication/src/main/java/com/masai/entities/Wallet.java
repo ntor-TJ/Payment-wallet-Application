@@ -53,7 +53,7 @@ public class Wallet {
 	@OneToMany
 	private List<Transaction> transactions;
 	
-	@OneToMany(cascade=CascadeType.ALL, mappedBy = "wallet")
+	@OneToMany(mappedBy = "wallet")
 	@JsonIgnore
 	private List<BeneficiaryDetails> bd = new ArrayList<>();
 }

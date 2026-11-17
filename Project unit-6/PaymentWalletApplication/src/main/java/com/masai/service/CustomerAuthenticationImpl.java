@@ -18,7 +18,6 @@ import net.bytebuddy.utility.RandomString;
 @Service
 public class CustomerAuthenticationImpl implements CustomerAuthentication{
 
-	
 	@Autowired
 	CustomerDao customerDao;
 	
@@ -30,54 +29,65 @@ public class CustomerAuthenticationImpl implements CustomerAuthentication{
 
 	@Override
 	public String login(CustomerDTO customerDTO) {
-	
-		
-	Optional<Customer> opt = customerDao.findByMobileNumber(customerDTO.getMobileNumber());
-	
-	if(!opt.isPresent()) {
-		
-		throw new InvalidDetailsException("Please Check the credentials");
-	}
-	
-	Customer newCustomer1 = opt.get();
-	Integer customerId1 = newCustomer1.getCustomerId();
-    Optional<UserSession> currentUser =	 sessionDao.findByCustomerId(customerId1);
-	
-    
-     if(newCustomer1.getPassword().equals(customerDTO.getPassword())){
-    	
-    	String key = RandomString.make(10);
-    	
-    	UserSession userSession = new UserSession(newCustomer1.getCustomerId(),LocalDateTime.now(),key);
+		if (customerDTO == null || customerDTO.getMobileNumber() == null || customerDTO.getMobileNumber().trim().isEmpty()) {
+			throw new InvalidDetailsException("Please Check the credentials");
+		}
+		if (customerDTO.getPassword() == null || customerDTO.getPassword().trim().isEmpty()) {
+			throw new InvalidDetailsException("Please Check the credentials");
+		}
 
-         sessionDao.save(userSession);
-         
-         return userSession.toString();
-    }
-    else {
-    	return "please enter a valid password";
-    }
-		
+		Optional<Customer> opt = customerDao.findByMobileNumber(customerDTO.getMobileNumber());
+		if (!opt.isPresent()) {
+			throw new InvalidDetailsException("Please Check the credentials");
+		}
+
+		Customer customer = opt.get();
+		if (!customer.getPassword().equals(customerDTO.getPassword())) {
+			throw new InvalidDetailsException("Please Check the credentials");
+		}
+
+		Integer customerId = customer.getCustomerId();
+		Optional<UserSession> currentUserOpt = sessionDao.findByCustomerId(customerId);
+
+		if (currentUserOpt.isPresent()) {
+			UserSession existingSession = currentUserOpt.get();
+			if (existingSession.getDateTime() == null || !existingSession.getDateTime().plusHours(1).isAfter(LocalDateTime.now())) {
+				sessionDao.delete(existingSession);
+			} else {
+				throw new InvalidDetailsException("User is already logged in");
+			}
+		}
+
+		String key;
+		do {
+			key = RandomString.make(10);
+		} while (sessionDao.findByUuid(key).isPresent());
+
+		UserSession userSession = new UserSession(customer.getCustomerId(), LocalDateTime.now(), key);
+		sessionDao.save(userSession);
+
+		return userSession.toString();
 	}
 
 	@Override
 	public String logOut(String key) {
-		
-	 Optional<UserSession> currentUser =	sessionDao.findByUuid(key);
-		
-	 if(!currentUser.isPresent()) {
+		if (key == null || key.trim().isEmpty()) {
+			throw new InvalidDetailsException("Entered key is wrong");
+		}
 
-		 throw new InvalidDetailsException("Entered key is wrong");
-	 }
-	 
-	 UserSession userSession =  this.currentUser.getcurrentUserSessionDetails(key);
-	 
-	 sessionDao.delete(userSession);
+		Optional<UserSession> currentUser = sessionDao.findByUuid(key);
+		if (!currentUser.isPresent()) {
+			throw new InvalidDetailsException("Entered key is wrong");
+		}
 
-	 return "Logged Out";
+		UserSession userSession = currentUser.get();
+		if (userSession.getDateTime() == null || !userSession.getDateTime().plusHours(1).isAfter(LocalDateTime.now())) {
+			sessionDao.delete(userSession);
+			throw new InvalidDetailsException("Session has expired");
+		}
+
+		sessionDao.delete(userSession);
+		return "Logged Out";
 	}
-
-    
-
 
 }
