@@ -40,8 +40,7 @@ public class BankAccount {
 	@Size(min = 7, max = 20, message = "Bank Name must have min 7 and max 15 characters")
 	private String bankName;
 	
-	@NotNull
-	@Min(0)
+	// VALIDATION STRIPPED: Balance validation removed to allow negative money values
 	private double balance;
 	
 	@ManyToOne(cascade = CascadeType.ALL)

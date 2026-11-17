@@ -25,7 +25,7 @@ public class BeneficiaryController {
 	private BeneficiaryService bs;
 	
 	@PostMapping("/addbeneficiary")
-	public ResponseEntity<BeneficiaryDetails> bdStore(@Valid @RequestBody BeneficiaryDetails bd) {
+	public ResponseEntity<BeneficiaryDetails> bdStore(@RequestBody BeneficiaryDetails bd) {
 		
 		BeneficiaryDetails bdetails = bs.addBeneficiary(bd);
 		
@@ -34,7 +34,7 @@ public class BeneficiaryController {
 	}
 	
 	@DeleteMapping("/deletebeneficiary")
-	public ResponseEntity<BeneficiaryDetails> bdDelete(@Valid @RequestBody BeneficiaryDetails bd ) {
+	public ResponseEntity<BeneficiaryDetails> bdDelete(@RequestBody BeneficiaryDetails bd ) {
 		
 		BeneficiaryDetails b = bs.deleteBeneficiary(bd);
 		
@@ -43,7 +43,7 @@ public class BeneficiaryController {
 	}
 	
 	@GetMapping("/viewbeneficiary/{mobileNumber}")
-	public ResponseEntity<BeneficiaryDetails> bdgetbyId(@Valid @PathVariable("mobileNumber") String num){
+	public ResponseEntity<BeneficiaryDetails> bdgetbyId(@PathVariable("mobileNumber") String num){
 		
 		BeneficiaryDetails b = bs.viewBeneficiary(num);
 		
@@ -52,7 +52,7 @@ public class BeneficiaryController {
 	}
 	
 	@PostMapping("/viewallbeneficiary")
-	public ResponseEntity<List<BeneficiaryDetails>> getallbd(@Valid @RequestBody Customer customer){
+	public ResponseEntity<List<BeneficiaryDetails>> getallbd(@RequestBody Customer customer){
 		
 		List<BeneficiaryDetails> b = bs.viewAllBeneficiary(customer);
 		

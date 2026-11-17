@@ -34,7 +34,7 @@ public class BankAccountController {
 
 	
 	@PostMapping("/banks/{walletId}")
-	ResponseEntity<String> addAccount(@Valid @RequestBody BankAccount bankAccount,@PathVariable Integer walletId, @RequestParam String key){
+	ResponseEntity<String> addAccount(@RequestBody BankAccount bankAccount,@PathVariable Integer walletId, @RequestParam String key){
 		
 		
 	return new ResponseEntity<String>(bankService.addAccount(bankAccount,walletId,key),HttpStatus.CREATED);
